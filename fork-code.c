@@ -18,17 +18,18 @@ int main()
         return 1;
     }
     else if (pid == 0) {
+        //count up infinitely
         while(1){ /* child process */
             count += 1;
+            //inform that it is the child process
             printf("Cycle Number Child: %d\n", count);
             sleep(1);
         }
     }
     else { /* parent process */
-        /* parent will wait for the child to complete */
-        //wait(NULL);
         while(1){
         count += 1;
+        //inform that it is the parent process
         printf("Cycle Number Parent: %d\n", count);
         sleep(1);
     }

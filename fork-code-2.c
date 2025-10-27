@@ -19,8 +19,15 @@ int main()
     }
     else if (pid == 0) {
         while(1){ /* child process */
-            count += 1;
-            printf("Cycle Number Child: %d\n", count);
+            count -= 1;
+            if(count % 3 == 0){
+                printf("Cycle Number Child: %d, %d is a multiple of 3\n", count, count);
+            }
+
+            else{
+                printf("Cycle Number Child: %d\n", count);
+            }
+    
             sleep(1);
         }
     }
@@ -28,9 +35,15 @@ int main()
         /* parent will wait for the child to complete */
         //wait(NULL);
         while(1){
-        count += 1;
-        printf("Cycle Number Parent: %d\n", count);
-        sleep(1);
+            count += 1;
+            if(count % 3 == 0){
+                printf("Cycle Number Parent: %d, %d is a multiple of 3\n", count, count);
+            }
+            else{
+                printf("Cycle Number Parent: %d\n", count);
+            }
+            
+            sleep(1);
     }
     }
 

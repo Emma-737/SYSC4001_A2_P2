@@ -3,5 +3,5 @@ if [ ! -d "bin" ]; then
 else
 	rm -f bin/*
 fi
-gcc -g -O0 -I . -o bin/fork-code fork-code.c
+gcc -g -O0 -I . -o bin/fork-code-2 fork-code-2.c
 

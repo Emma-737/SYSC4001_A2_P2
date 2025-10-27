@@ -1,14 +1,30 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <stdlib.h>
 
 
 //base code is from the textbook, page 119
 int main()
 {
     pid_t pid;
-    int count = 0;
+    int *count; //shared memory
+    int shm_id;
+    int status;
 
+
+    //set up shared memory
+    if ((shm_id = (shmget (IPC_PRIVATE, 1, IPC_CREAT | 0600)))){
+        perror("shmget error");
+    }
+        
+    if ( ( count = (int * ) shmat (shm_id, (char *)0, 0 )) == (int *)-1){
+        perror("shmat");
+    }
+
+    *count = 0;
     /* fork a child process */
     pid = fork();
     
@@ -21,17 +37,17 @@ int main()
     //run the child process
     else if (pid == 0) {
         while(1){ /* child process */
-            count -= 1;
+            *count += 1;
             //display multiples of 3
-            if(count % 3 == 0){
-                printf("Cycle Number Child: %d, %d is a multiple of 3\n", count, count);
+            if(*count % 3 == 0){
+                printf("Cycle Number Child: %d, %d is a multiple of 3\n", *count, *count);
             }
 
             else{
-                printf("Cycle Number Child: %d\n", count);
+                printf("Cycle Number Child: %d\n", *count);
             }
             //terminate the child when count reaches -500
-            if(count == -500){
+            if(*count == -500){
                 printf("Child terminated\n");
                 exit(1);
             }
@@ -44,18 +60,18 @@ int main()
        //run infinite loop
         while(1){
             //increase count
-            count += 1;
+            *count += 1;
             //print out if the cycle is a multiple of 3
-            if(count % 3 == 0){
-                printf("Cycle Number Parent: %d, %d is a multiple of 3\n", count, count);
+            if(*count % 3 == 0){
+                printf("Cycle Number Parent: %d, %d is a multiple of 3\n", *count, *count);
             }
             else{
-                printf("Cycle Number Parent: %d\n", count);
+                printf("Cycle Number Parent: %d\n", *count);
             }
             //waits for the child to terminate
-            wait();
-            printf("Parent terminated\n");
-            exit(1);
+            //wait();
+            //printf("Parent terminated\n");
+            //exit(1);
             //wait for 1 second
             sleep(1);
     }

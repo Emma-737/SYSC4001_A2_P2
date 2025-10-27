@@ -12,6 +12,7 @@ int main()
     pid = fork();
     
     printf("pid: %d\n", pid);
+    printf("process 4")
 
     if (pid < 0) { /* error occurred */
         fprintf(stderr, "Fork Failed\n");

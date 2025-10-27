@@ -10,21 +10,37 @@
 int main()
 {
     pid_t pid;
-    int *count; //shared memory
+    //int *count; //shared memory
+    //int *multiple; //shared memory
     int shm_id;
+    int shm_id_2;
     int status;
+
+    typedef struct{
+        int count;
+        int multiple;
+    }shared_data_t;
+
+    size_t shm_size1 = sizeof(shared_data_t);
 
 
     //set up shared memory
-    if ((shm_id = (shmget (IPC_PRIVATE, 1, IPC_CREAT | 0600)))){
+    //creates new flag with read and write permissions for the owner
+    //if returns -1, there was an error
+    if ((shm_id = (shmget (IPC_PRIVATE, shm_size1, IPC_CREAT | 0600))) == -1){
         perror("shmget error");
     }
+    //for multiple
+   
         
-    if ( ( count = (int * ) shmat (shm_id, (char *)0, 0 )) == (int *)-1){
+    if ( (shared_data_t *nums = (shared_data_t *) shmat (shm_id, (char *)0, 0 )) == (int *)-1){
         perror("shmat");
     }
+    
+    
 
-    *count = 0;
+    //*count = 0;
+    //*multiple = 3;
     /* fork a child process */
     pid = fork();
     
@@ -39,15 +55,15 @@ int main()
         while(1){ /* child process */
             *count += 1;
             //display multiples of 3
-            if(*count % 3 == 0){
-                printf("Cycle Number Child: %d, %d is a multiple of 3\n", *count, *count);
+            if(count % multiple == 0){
+                printf("Cycle Number Child: %d, %d is a multiple of %d\n", shared_data_t.count, shared_data_t.count, shared_data_t.multiple);
             }
 
             else{
-                printf("Cycle Number Child: %d\n", *count);
+                printf("Cycle Number Child: %d\n", shared_data_t.count);
             }
             //terminate the child when count reaches -500
-            if(*count == -500){
+            if(count == -500){
                 printf("Child terminated\n");
                 exit(1);
             }
@@ -60,23 +76,20 @@ int main()
        //run infinite loop
         while(1){
             //increase count
-            *count += 1;
+            count += 1;
             //print out if the cycle is a multiple of 3
-            if(*count % 3 == 0){
-                printf("Cycle Number Parent: %d, %d is a multiple of 3\n", *count, *count);
+            if(*count % *multiple == 0){
+                printf("Cycle Number Parent: %d, %d is a multiple of %d\n", count, count, multiple);
             }
             else{
-                printf("Cycle Number Parent: %d\n", *count);
+                printf("Cycle Number Parent: %d\n", count);
             }
-            //waits for the child to terminate
-            //wait();
-            //printf("Parent terminated\n");
-            //exit(1);
-            //wait for 1 second
+            
             sleep(1);
     }
     }
-
+    //detach memory from count
+    shmdt(nums);
 
     return 0;
 }
